@@ -23,14 +23,16 @@ export default {
     canvas.width = document.body.clientWidth
     canvas.height = 500
   },
-  created: {
-    init () {
-      setInterval(() => {
-        console.log(((Math.random() * 100).toFixed(2)))
-      }, 100)
-    }
+  created () {
+    setInterval(() => {
+      // console.log(((Math.random() * 100).toFixed(2)))
+      this.run()
+    }, 100)
   },
   methods: {
+    run () {
+      console.log('run')
+    }
   },
   directives: {
     insertMessage: function (canvasElement, binding) {
