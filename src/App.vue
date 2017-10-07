@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <canvas id="world" style="border:1px solid #BBB;"></canvas>
-    <input type="text" v-model="realtimeText" @input="bindText($event)"/>
+    <input type="text" v-model="realtimeText" @input="bindText($event)" @keyup.enter="bindSubmit"/>
     <input type="text" v-model="initText" @input="updateText($event)" @keyup.enter="submit"/>
 
     <!--
@@ -43,21 +43,22 @@ export default {
       }
 
       // 最後の文字が大きい
-      this.ctx.font = '20px Georgia'
-      let notAnimationCharacter = this.currentBindText.slice(0, -1)
-      let AnimationCharacter = this.currentBindText.slice(-1)
-      this.ctx.fillText(notAnimationCharacter, 50, 50)
-      this.ctx.font = '50px Georgia'
-      this.ctx.fillText(AnimationCharacter, 50, 150)
-      this.ctx.font = '20px Georgia'
+      // this.ctx.font = '20px Georgia'
+      // let notAnimationCharacter = this.currentBindText.slice(0, -1)
+      // let AnimationCharacter = this.currentBindText.slice(-1)
+      // this.ctx.fillText(notAnimationCharacter, 50, 50)
+      // this.ctx.font = '50px Georgia'
+      // this.ctx.fillText(AnimationCharacter, 50, 150)
+      // this.ctx.font = '20px Georgia'
 
       // 目的地まで移動する文字
       this.TextCollection.forEach((obj, index) => {
         // console.log(obj.sSize)
         this.ctx.font = obj.size + 'px Georgia'
-        obj.cPositionX = obj.cPositionX + (obj.ePositionX - obj.cPositionX) * 0.1
-        obj.cPositionY = obj.cPositionY + (obj.ePositionY - obj.cPositionY) * 0.1
+        obj.cPositionX = obj.cPositionX + (obj.ePositionX - obj.cPositionX) * 0.3
+        obj.cPositionY = obj.cPositionY + (obj.ePositionY - obj.cPositionY) * 0.3
         this.ctx.fillText(obj.text, obj.cPositionX, obj.cPositionY)
+        // let rate = // 接近率
       })
     }, 33)
   },
@@ -92,8 +93,12 @@ export default {
       })
     },
     bindText (e) {
+    },
+    bindSubmit (e) {
       this.currentBindText = e.target.value
       console.log(this.currentBindText)
+      this.TextCollection = []
+
       this.currentBindText.split('').forEach((character, index) => {
         // 最後の文字は、animation可能にする
         let sx = 50 + Math.random() * (this.canvas.width - 100)
@@ -102,7 +107,13 @@ export default {
         // let ex = 50 + Math.random() * (this.canvas.width - 100)
         // let ey = 50 + Math.random() * (this.canvas.height - 100)
 
-        let ex = 50 + index * 10
+        let width = 10
+
+        if (character.match(/^[^\x01-\x7E\xA1-\xDF]+$/)) { // 全角文字
+          width *= 2
+        }
+
+        let ex = 50 + index * width
         let ey = 50
 
         this.TextCollection.push({
