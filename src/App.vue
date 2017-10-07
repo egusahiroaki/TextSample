@@ -20,6 +20,7 @@ export default {
       realtimeText: 'This is realtime TEXT',
       initText: 'This is TEXT',
       currentBindText: '',
+      TextCollection: [], // テキストを1文字ずつばらばらに入れて、文字サイズを大小させる {text: 'あ', size: 10, finished: false} のようなかたちにする
       currentInputText: '',
       items: [] // canvas中にあるテキスト
     }
@@ -40,9 +41,23 @@ export default {
       if (this.items.length !== 0) {
         this.run()
       }
-      this.speedX += 0.1
-      this.ctx.font = this.speedX + 'px Georgia'
-      this.ctx.fillText(this.realtimeText, 50, 50)
+
+      // 最後の文字が大きい
+      this.ctx.font = '20px Georgia'
+      let notAnimationCharacter = this.currentBindText.slice(0, -1)
+      let AnimationCharacter = this.currentBindText.slice(-1)
+      this.ctx.fillText(notAnimationCharacter, 50, 50)
+      this.ctx.font = '50px Georgia'
+      this.ctx.fillText(AnimationCharacter, 50, 150)
+      this.ctx.font = '20px Georgia'
+
+      // 目的地まで移動する文字
+      this.TextCollection.forEach((obj, index) => {
+        this.ctx.font = obj.size + 'px Georgia'
+        obj.sPositionX = obj.sPositionX + (obj.ePositionX - obj.sPositionX) * 0.1
+        obj.sPositionY = obj.sPositionY + (obj.ePositionY - obj.sPositionY) * 0.1
+        this.ctx.fillText(obj.text, obj.sPositionX, obj.sPositionY)
+      })
     }, 33)
   },
   methods: {
@@ -78,6 +93,27 @@ export default {
     bindText (e) {
       this.currentBindText = e.target.value
       console.log(this.currentBindText)
+      this.currentBindText.split('').forEach((character, index) => {
+        // 最後の文字は、animation可能にする
+        let sx = 50 + Math.random() * (this.canvas.width - 100)
+        let sy = 50 + Math.random() * (this.canvas.height - 100)
+
+        let ex = 50 + Math.random() * (this.canvas.width - 100)
+        let ey = 50 + Math.random() * (this.canvas.height - 100)
+
+        this.TextCollection.push({
+          text: character,
+          size: 20,
+          sizeRate: 1, // 文字サイズの変化スピード
+          sPositionX: sx, // 初期x座標
+          sPositionY: sy, // 初期y座標
+          ePositionX: ex, // 最終x座標
+          ePositionY: ey, // 最終y座標
+          speedX: 1,
+          speedY: 1,
+          animationFinshed: false
+        })
+      })
     },
     updateText (e) {
       this.currentInputText = e.target.value
