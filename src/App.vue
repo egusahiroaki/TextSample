@@ -53,10 +53,11 @@ export default {
 
       // 目的地まで移動する文字
       this.TextCollection.forEach((obj, index) => {
+        // console.log(obj.sSize)
         this.ctx.font = obj.size + 'px Georgia'
-        obj.sPositionX = obj.sPositionX + (obj.ePositionX - obj.sPositionX) * 0.1
-        obj.sPositionY = obj.sPositionY + (obj.ePositionY - obj.sPositionY) * 0.1
-        this.ctx.fillText(obj.text, obj.sPositionX, obj.sPositionY)
+        obj.cPositionX = obj.cPositionX + (obj.ePositionX - obj.cPositionX) * 0.1
+        obj.cPositionY = obj.cPositionY + (obj.ePositionY - obj.cPositionY) * 0.1
+        this.ctx.fillText(obj.text, obj.cPositionX, obj.cPositionY)
       })
     }, 33)
   },
@@ -98,19 +99,21 @@ export default {
         let sx = 50 + Math.random() * (this.canvas.width - 100)
         let sy = 50 + Math.random() * (this.canvas.height - 100)
 
-        let ex = 50 + Math.random() * (this.canvas.width - 100)
-        let ey = 50 + Math.random() * (this.canvas.height - 100)
+        // let ex = 50 + Math.random() * (this.canvas.width - 100)
+        // let ey = 50 + Math.random() * (this.canvas.height - 100)
+
+        let ex = 50 + index * 10
+        let ey = 50
 
         this.TextCollection.push({
           text: character,
           size: 20,
-          sizeRate: 1, // 文字サイズの変化スピード
           sPositionX: sx, // 初期x座標
           sPositionY: sy, // 初期y座標
           ePositionX: ex, // 最終x座標
-          ePositionY: ey, // 最終y座標
-          speedX: 1,
-          speedY: 1,
+          ePositionY: ey, // 最終x座標
+          cPositionX: sx, // 現在x座標
+          cPositionY: sy, // 現在y座標
           animationFinshed: false
         })
       })
