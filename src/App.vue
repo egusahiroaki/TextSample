@@ -8,6 +8,8 @@
  -->
     <input type="text" v-model="initText" @keyup.enter="submitC"/>
 
+    <!-- 落ちていく文字 -->
+    <input type="text" v-model="initText" @keyup.enter="submitD"/>
     <!--
     <router-view></router-view>
     -->
@@ -57,7 +59,8 @@ export default {
       // this.ctx.font = '20px Georgia'
 
       // this.runB()
-      this.runC()
+      // this.runC()
+      this.runD()
     }, 33)
   },
   methods: {
@@ -74,6 +77,28 @@ export default {
       this.items.push(move)
       this.currentInputText = ''
       this.initText = ''
+    },
+    runD () {
+      // 目的地まで移動する文字 問題点としては、文字ごとに横幅が違うのでfontsizeが大きくなると不自然
+      this.TextCollection.forEach((obj, index) => {
+        // console.log(obj.sSize)
+        // '"Fascinate Inline", cursive, Futura, YuGothic, sans-serif';
+        this.ctx.font = obj.size + 'px Fascinate Inline, cursive, Futura, YuGothic, sans-serif'
+        this.ctx.fillStyle = obj.color
+        obj.sPositionY += obj.speedY
+
+        this.ctx.save()
+        // this.ctx.translate(obj.sPositionX, obj.sPositionY)
+        // console.log(obj.sPositionX + this.ctx.measureText(obj.text) / 2)
+        console.log(this.ctx.measureText(obj.text).width / 2)
+        this.ctx.translate(obj.sPositionX + this.ctx.measureText(obj.text).width / 2, obj.sPositionY)
+        obj.angle += 1
+        this.ctx.rotate((obj.angle * Math.PI) / 180)
+        // this.ctx.fillText(obj.text, obj.sPositionX, obj.sPositionY)
+        this.ctx.fillText(obj.text, 0, 0)
+        this.ctx.translate(-obj.sPositionX - this.ctx.measureText(obj.text).width / 2, -obj.sPositionY)
+        this.ctx.restore()
+      })
     },
     runC () {
       // 目的地まで移動する文字 問題点としては、文字ごとに横幅が違うのでfontsizeが大きくなると不自然
@@ -161,7 +186,6 @@ export default {
       this.currentInputText = e.target.value
     },
     submitC (e) {
-      // 1文字だけ取得して、真ん中に大きく表示。
       this.currentBindText = e.target.value
       this.TextCollection = []
 
@@ -191,6 +215,30 @@ export default {
             color: '#' + ((1 << 24) * Math.random() | 0).toString(16)
           })
         }
+      })
+    },
+    submitD (e) {
+      // 入力した文字が上から回転しながら落ちていく
+      this.currentBindText = e.target.value[e.target.value.length - 1]
+      this.TextCollection = []
+
+      e.target.value.split('').forEach((character, index) => {
+        // 最後の文字は、animation可能にする
+
+        // let sx = 50 + Math.random() * (this.canvas.width - 100)
+        let sx = 50 + index * 20
+        let sy = 0
+
+        this.TextCollection.push({
+          text: character,
+          size: 30,
+          sPositionX: sx, // 初期x座標
+          sPositionY: sy, // 初期y座標
+          speedX: 0, // 移動スピードx
+          speedY: 1, // 現在y座標
+          angle: 0,
+          color: '#' + ((1 << 24) * Math.random() | 0).toString(16)
+        })
       })
     }
   }
