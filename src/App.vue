@@ -2,7 +2,11 @@
   <div id="app">
     <canvas id="world" style="border:1px solid #BBB;"></canvas>
     <input type="text" v-model="realtimeText" @input="bindText($event)" @keyup.enter="bindSubmit"/>
-    <input type="text" v-model="initText" @input="updateText($event)" @keyup.enter="submit"/>
+
+<!--
+     <input type="text" v-model="initText" @input="updateText($event)" @keyup.enter="submit"/>
+ -->
+    <input type="text" v-model="initText" @keyup.enter="submitC"/>
 
     <!--
     <router-view></router-view>
@@ -11,6 +15,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'app',
   data () {
@@ -51,15 +56,8 @@ export default {
       // this.ctx.fillText(AnimationCharacter, 50, 150)
       // this.ctx.font = '20px Georgia'
 
-      // 目的地まで移動する文字
-      this.TextCollection.forEach((obj, index) => {
-        // console.log(obj.sSize)
-        this.ctx.font = obj.size + 'px Georgia'
-        obj.cPositionX = obj.cPositionX + (obj.ePositionX - obj.cPositionX) * 0.3
-        obj.cPositionY = obj.cPositionY + (obj.ePositionY - obj.cPositionY) * 0.3
-        this.ctx.fillText(obj.text, obj.cPositionX, obj.cPositionY)
-        // let rate = // 接近率
-      })
+      // this.runB()
+      this.runC()
     }, 33)
   },
   methods: {
@@ -76,6 +74,36 @@ export default {
       this.items.push(move)
       this.currentInputText = ''
       this.initText = ''
+    },
+    runC () {
+      // 目的地まで移動する文字 問題点としては、文字ごとに横幅が違うのでfontsizeが大きくなると不自然
+      this.TextCollection.forEach((obj, index) => {
+        // console.log(obj.sSize)
+        // '"Fascinate Inline", cursive, Futura, YuGothic, sans-serif';
+        this.ctx.font = obj.size + 'px Fascinate Inline, cursive, Futura, YuGothic, sans-serif'
+        this.ctx.fillStyle = obj.color
+        obj.cPositionX = obj.cPositionX + (obj.ePositionX - obj.cPositionX) * 0.08
+        obj.cPositionY = obj.cPositionY + (obj.ePositionY - obj.cPositionY) * 0.08
+        this.ctx.fillText(obj.text, obj.cPositionX, obj.cPositionY)
+
+        let rate = Math.sqrt((obj.ePositionX - obj.cPositionX) * (obj.ePositionX - obj.cPositionX) + (obj.ePositionY - obj.cPositionY) * (obj.ePositionY - obj.cPositionY)) / Math.sqrt((obj.ePositionX - obj.sPositionX) * (obj.ePositionX - obj.sPositionX) + (obj.ePositionY - obj.sPositionY) * (obj.ePositionY - obj.sPositionY)) // 接近率
+        console.log(rate)
+
+        if (rate < 0.0001) {
+
+        }
+      })
+    },
+    runB () {
+      // 目的地まで移動する文字 問題点としては、文字ごとに横幅が違うのでfontsizeが大きくなると不自然
+      this.TextCollection.forEach((obj, index) => {
+        // console.log(obj.sSize)
+        this.ctx.font = obj.size + 'px Georgia'
+        obj.cPositionX = obj.cPositionX + (obj.ePositionX - obj.cPositionX) * 0.5
+        obj.cPositionY = obj.cPositionY + (obj.ePositionY - obj.cPositionY) * 0.5
+        this.ctx.fillText(obj.text, obj.cPositionX, obj.cPositionY)
+        // let rate = // 接近率
+      })
     },
     run () {
       this.items.forEach((item) => {
@@ -107,7 +135,7 @@ export default {
         // let ex = 50 + Math.random() * (this.canvas.width - 100)
         // let ey = 50 + Math.random() * (this.canvas.height - 100)
 
-        let width = 10
+        let width = 25
 
         if (character.match(/^[^\x01-\x7E\xA1-\xDF]+$/)) { // 全角文字
           width *= 2
@@ -118,7 +146,7 @@ export default {
 
         this.TextCollection.push({
           text: character,
-          size: 20,
+          size: 50,
           sPositionX: sx, // 初期x座標
           sPositionY: sy, // 初期y座標
           ePositionX: ex, // 最終x座標
@@ -131,6 +159,39 @@ export default {
     },
     updateText (e) {
       this.currentInputText = e.target.value
+    },
+    submitC (e) {
+      // 1文字だけ取得して、真ん中に大きく表示。
+      this.currentBindText = e.target.value
+      this.TextCollection = []
+
+      // 10回ループ。あとで直す
+      this.currentBindText.split('').forEach((character, index) => {
+        // 最後の文字は、animation可能にする
+
+        for (var i = 0; i < 3; i++) {
+          let sx = 50 + Math.random() * (this.canvas.width - 100)
+          let sy = 50 + Math.random() * (this.canvas.height - 100)
+
+          console.log(sx)
+          // let ex = 50 + Math.random() * (this.canvas.width - 100)
+          // let ey = 50 + Math.random() * (this.canvas.height - 100)
+
+          let ex = 50 + index * 50
+          let ey = 100
+          this.TextCollection.push({
+            text: character,
+            size: 50,
+            sPositionX: sx, // 初期x座標
+            sPositionY: sy, // 初期y座標
+            ePositionX: ex, // 最終x座標
+            ePositionY: ey, // 最終x座標
+            cPositionX: sx, // 現在x座標
+            cPositionY: sy, // 現在y座標
+            color: '#' + ((1 << 24) * Math.random() | 0).toString(16)
+          })
+        }
+      })
     }
   }
 }
